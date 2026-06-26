@@ -16,34 +16,29 @@ import {
   Sparkles,
 } from "lucide-react";
 
-import hero from "@/assets/hero.jpg";
-import forHer from "@/assets/for-her.jpg";
-import forHim from "@/assets/for-him.jpg";
-import catRings from "@/assets/cat-rings.jpg";
-import catPendants from "@/assets/cat-pendants.jpg";
-import catEarrings from "@/assets/cat-earrings.jpg";
-import catBracelets from "@/assets/cat-bracelets.jpg";
-import pCharmChain from "@/assets/p-charm-chain.jpg";
-import pGardenRing from "@/assets/p-garden-ring.jpg";
-import pGoldenEarrings from "@/assets/p-golden-earrings.jpg";
-import pLeafPendant from "@/assets/p-leaf-pendant.jpg";
-import pCharmBracelet from "@/assets/p-charm-bracelet.jpg";
-import pNomadRing from "@/assets/p-nomad-ring.jpg";
-import banner from "@/assets/banner-collection.jpg";
+import necklaceCoinSet from "@/assets/necklace/necklace-coin-set.jpg";
+import necklaceChoker from "@/assets/necklace/necklace-choker.jpg";
+import necklacePearlPendant from "@/assets/necklace/necklace-pearl-pendant.jpg";
+import earringRoseJhumka from "@/assets/earrings/earring-rose-jhumka.jpg";
+import earringRoseStud from "@/assets/earrings/earring-rose-stud.jpg";
+import earringLotusJhumka from "@/assets/earrings/earring-lotus-jhumka.jpg";
+import earringFloralJhumka from "@/assets/earrings/earring-floral-jhumka.jpg";
+import earringPeacockJhumka from "@/assets/earrings/earring-peacock-jhumka.jpg";
+import earringEmeraldJhumka from "@/assets/earrings/earring-emerald-jhumka.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "elfy — Pure 925 Sterling Silver Jewellery" },
+      { title: "rajshrimahal — Handcrafted Gold Jewellery" },
       {
         name: "description",
         content:
-          "Handcrafted sterling silver jewellery — rings, pendants, earrings, bracelets and charms. Silver which brings souls together.",
+          "Handcrafted gold-finish jewellery — temple necklaces, kundan sets, chokers and jhumka earrings. Gold which brings souls together.",
       },
-      { property: "og:title", content: "elfy — Pure 925 Sterling Silver Jewellery" },
+      { property: "og:title", content: "rajshrimahal — Handcrafted Gold Jewellery" },
       {
         property: "og:description",
-        content: "Silver which brings souls together. Handcrafted in pure 925.",
+        content: "Gold which brings souls together. Handcrafted necklaces & jhumkas.",
       },
     ],
   }),
@@ -58,18 +53,19 @@ type Product = {
   tag?: string;
 };
 
-const charms: Product[] = [
-  { name: "Paperclip Charm Chain", price: "Rs. 7,999", compare: "Rs. 9,999", img: pCharmChain, tag: "Bestseller" },
-  { name: "Paperclip Charm Bracelet", price: "Rs. 1,999", compare: "Rs. 2,299", img: pCharmBracelet },
-  { name: "Watch Charm Chain", price: "Rs. 999", compare: "Rs. 1,299", img: pCharmChain },
-  { name: "Star Trail Bracelet", price: "Rs. 2,499", compare: "Rs. 2,899", img: pCharmBracelet, tag: "New" },
+const necklaces: Product[] = [
+  { name: "Lakshmi Kasu Necklace Set", price: "Rs. 14,999", compare: "Rs. 17,999", img: necklaceCoinSet, tag: "Bestseller" },
+  { name: "Rajwadi Gold Choker", price: "Rs. 18,999", img: necklaceChoker, tag: "New" },
+  { name: "Moti Polki Pendant Set", price: "Rs. 9,999", compare: "Rs. 11,999", img: necklacePearlPendant },
 ];
 
-const evermore: Product[] = [
-  { name: "Garden Whisper Ring", price: "Rs. 8,499", img: pGardenRing, tag: "Editor's Pick" },
-  { name: "Nomad's Treasure Ring", price: "Rs. 5,999", img: pNomadRing },
-  { name: "Golden Petals Earrings", price: "Rs. 9,999", img: pGoldenEarrings },
-  { name: "Pleasant Leaf Pendant", price: "Rs. 2,499", compare: "Rs. 2,999", img: pLeafPendant },
+const earrings: Product[] = [
+  { name: "Gulabi Rose Jhumka", price: "Rs. 2,799", img: earringRoseJhumka, tag: "Bestseller" },
+  { name: "Petite Rose Jhumki", price: "Rs. 1,899", img: earringRoseStud },
+  { name: "Golden Lotus Jhumka", price: "Rs. 2,999", img: earringLotusJhumka },
+  { name: "Marigold Bell Jhumka", price: "Rs. 2,699", compare: "Rs. 3,199", img: earringFloralJhumka },
+  { name: "Emerald Drop Jhumka", price: "Rs. 3,499", img: earringEmeraldJhumka, tag: "Editor's Pick" },
+  { name: "Mor Temple Jhumka", price: "Rs. 3,299", img: earringPeacockJhumka, tag: "New" },
 ];
 
 function Home() {
@@ -79,12 +75,11 @@ function Home() {
       <Header />
       <Hero />
       <Marquee />
-      <ForHerHim />
-      <Collections />
+      <Categories />
       <ShopByPrice />
-      <ProductRail title="Charms" eyebrow="New In" items={charms} />
+      <ProductRail title="The Necklace Edit" eyebrow="Handcrafted" items={necklaces} columns={3} />
       <FullBanner />
-      <ProductRail title="Evermore by elfy" eyebrow="Signature Edit" items={evermore} />
+      <ProductRail title="Jhumkas & Earrings" eyebrow="Best Loved" items={earrings} columns={3} />
       <Promise />
       <Footer />
     </div>
@@ -95,8 +90,8 @@ function Home() {
 
 function AnnouncementBar() {
   const messages = [
-    "Pure 925 Sterling Silver",
-    "Flat 10% off your first order — code ELFY10",
+    "22K Gold-Finish Jewellery",
+    "Flat 10% off your first order — code RAJSHRI10",
     "Free shipping across India",
     "Lifetime Buyback up to 40%",
   ];
@@ -123,15 +118,15 @@ function Header() {
         <div className="grid grid-cols-3 items-center h-20">
           {/* Left nav */}
           <nav className="hidden lg:flex items-center gap-7 text-[13px] tracking-wide">
-            <NavItem label="Shop" />
+            <NavItem label="Necklaces" />
+            <NavItem label="Earrings" />
             <NavItem label="Collections" />
-            <NavItem label="Category" />
             <a href="#" className="hover:text-accent transition-colors">Buyback</a>
           </nav>
 
           {/* Logo */}
-          <a href="#" className="justify-self-center font-serif italic text-4xl tracking-tight leading-none">
-            elfy
+          <a href="#" className="justify-self-center font-serif italic text-3xl lg:text-4xl tracking-tight leading-none">
+            rajshrimahal
           </a>
 
           {/* Right icons */}
@@ -171,36 +166,36 @@ function Hero() {
     <section className="relative overflow-hidden">
       <div className="relative h-[78vh] min-h-[560px] w-full">
         <img
-          src={hero}
-          alt="Hands adorned with sterling silver rings"
+          src={necklacePearlPendant}
+          alt="Handcrafted gold and pearl pendant necklace"
           width={1920}
           height={1080}
-          className="absolute inset-0 size-full object-cover"
+          className="absolute inset-0 size-full object-cover object-[50%_42%]"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-background/60 via-background/10 to-background/40" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/55 to-background/25" />
         <div className="relative z-10 mx-auto max-w-[1400px] h-full px-6 lg:px-10 flex flex-col justify-end pb-20 lg:pb-28">
           <p className="uppercase tracking-[0.32em] text-[11px] text-foreground/80 mb-5">
-            Spring Capsule · MMXXV
+            The Heritage Edit · MMXXV
           </p>
           <h1 className="font-serif text-[clamp(2.6rem,7vw,6.5rem)] leading-[0.95] max-w-[14ch] italic">
-            Silver which brings <span className="text-accent">souls</span> together.
+            Gold which brings <span className="text-accent">souls</span> together.
           </h1>
-          <p className="mt-6 max-w-md text-muted-foreground text-base">
-            Heirloom-grade 925 sterling, handcrafted in small batches.
-            Designed to be worn, layered and passed on.
+          <p className="mt-6 max-w-md text-foreground/90 text-base font-medium drop-shadow-sm">
+            Handcrafted 22K gold-finish jewellery — temple necklaces, kundan
+            sets and jhumkas, made in small batches to be worn and passed on.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <a
               href="#"
               className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-7 py-3.5 text-[12px] uppercase tracking-[0.2em] hover:bg-accent hover:text-accent-foreground transition-colors"
             >
-              Shop the edit <ArrowRight className="size-4" strokeWidth={1.5} />
+              Shop necklaces <ArrowRight className="size-4" strokeWidth={1.5} />
             </a>
             <a
               href="#"
               className="inline-flex items-center gap-2 border border-foreground/40 px-7 py-3.5 text-[12px] uppercase tracking-[0.2em] hover:bg-foreground hover:text-background transition-colors"
             >
-              For Him
+              Shop earrings
             </a>
           </div>
         </div>
@@ -220,7 +215,7 @@ function Hero() {
 }
 
 function Marquee() {
-  const items = ["Pure 925 Silver", "Hypoallergenic", "Anti-Tarnish", "Lifetime Buyback", "Handcrafted in India"];
+  const items = ["22K Gold Finish", "Hypoallergenic", "Anti-Tarnish", "Lifetime Buyback", "Handcrafted in India"];
   return (
     <div className="border-y border-border bg-secondary/40 overflow-hidden">
       <div className="flex marquee-track whitespace-nowrap py-4">
@@ -235,17 +230,17 @@ function Marquee() {
   );
 }
 
-function ForHerHim() {
+function Categories() {
   return (
     <section className="mx-auto max-w-[1400px] px-6 lg:px-10 py-20 lg:py-28">
       <SectionHeading
         eyebrow="The Collections"
-        title="Made for every soul"
-        sub="Two muses, one silver story."
+        title="Necklaces & Earrings"
+        sub="Two heirloom edits, one golden story."
       />
       <div className="grid md:grid-cols-2 gap-6 lg:gap-8 mt-12">
-        <FeatureTile img={forHer} title="For Her" subtitle="Delicate, devotional, daily-wear." />
-        <FeatureTile img={forHim} title="For Him" subtitle="Quiet weight. Considered edges." />
+        <FeatureTile img={necklaceChoker} title="Necklaces" subtitle="Chokers, temple sets & pendants." />
+        <FeatureTile img={earringEmeraldJhumka} title="Earrings" subtitle="Jhumkas, studs & statement drops." />
       </div>
     </section>
   );
@@ -272,49 +267,12 @@ function FeatureTile({ img, title, subtitle }: { img: string; title: string; sub
   );
 }
 
-function Collections() {
-  const cats = [
-    { name: "Rings", img: catRings, count: "120 pieces" },
-    { name: "Pendants", img: catPendants, count: "84 pieces" },
-    { name: "Earrings", img: catEarrings, count: "96 pieces" },
-    { name: "Bracelets", img: catBracelets, count: "72 pieces" },
-  ];
-  return (
-    <section className="mx-auto max-w-[1400px] px-6 lg:px-10 py-20 lg:py-28 border-t border-border">
-      <SectionHeading eyebrow="Browse" title="Shop by category" />
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-7 mt-12">
-        {cats.map((c) => (
-          <a key={c.name} href="#" className="group block hover-zoom">
-            <div className="relative aspect-[4/5] overflow-hidden bg-secondary">
-              <img src={c.img} alt={c.name} loading="lazy" className="size-full object-cover" />
-            </div>
-            <div className="pt-5 flex items-baseline justify-between">
-              <h3 className="font-serif text-2xl">{c.name}</h3>
-              <span className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-                {c.count}
-              </span>
-            </div>
-          </a>
-        ))}
-      </div>
-      <div className="mt-12 text-center">
-        <a
-          href="#"
-          className="inline-flex items-center gap-2 text-[12px] uppercase tracking-[0.22em] border-b border-foreground pb-1 hover:text-accent hover:border-accent transition-colors"
-        >
-          View all collections <ArrowRight className="size-3.5" strokeWidth={1.5} />
-        </a>
-      </div>
-    </section>
-  );
-}
-
 function ShopByPrice() {
   const tiers = [
-    { label: "Under ₹2,000", note: "Everyday silver" },
-    { label: "Under ₹5,000", note: "Layering staples" },
-    { label: "Under ₹10,000", note: "Statement pieces" },
-    { label: "Above ₹10,000", note: "Heirloom edit" },
+    { label: "Under ₹2,000", note: "Everyday gold" },
+    { label: "Under ₹5,000", note: "Jhumka staples" },
+    { label: "Under ₹10,000", note: "Statement sets" },
+    { label: "Above ₹10,000", note: "Bridal edit" },
   ];
   return (
     <section className="bg-secondary/50 border-y border-border">
@@ -348,11 +306,14 @@ function ProductRail({
   title,
   eyebrow,
   items,
+  columns = 4,
 }: {
   title: string;
   eyebrow: string;
   items: Product[];
+  columns?: 3 | 4;
 }) {
+  const grid = columns === 3 ? "grid-cols-2 lg:grid-cols-3" : "grid-cols-2 lg:grid-cols-4";
   return (
     <section className="mx-auto max-w-[1400px] px-6 lg:px-10 py-20 lg:py-28">
       <div className="flex items-end justify-between mb-12 flex-wrap gap-6">
@@ -367,7 +328,7 @@ function ProductRail({
           View all
         </a>
       </div>
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-7">
+      <div className={`grid ${grid} gap-5 lg:gap-7`}>
         {items.map((p, idx) => (
           <ProductCard key={idx} product={p} />
         ))}
@@ -380,7 +341,7 @@ function ProductCard({ product }: { product: Product }) {
   const [liked, setLiked] = useState(false);
   return (
     <div className="group">
-      <div className="relative aspect-square overflow-hidden bg-secondary hover-zoom">
+      <div className="relative aspect-[4/5] overflow-hidden bg-secondary hover-zoom">
         <img src={product.img} alt={product.name} loading="lazy" className="size-full object-cover" />
         {product.tag && (
           <span className="absolute top-3 left-3 bg-background/95 text-foreground text-[10px] uppercase tracking-[0.18em] px-2.5 py-1">
@@ -422,12 +383,12 @@ function FullBanner() {
     <section className="relative">
       <div className="relative h-[60vh] min-h-[420px] overflow-hidden">
         <img
-          src={banner}
-          alt="Sterling silver collection laid on satin"
+          src={earringPeacockJhumka}
+          alt="Model wearing a handcrafted gold peacock jhumka"
           loading="lazy"
-          className="absolute inset-0 size-full object-cover"
+          className="absolute inset-0 size-full object-cover object-[50%_28%]"
         />
-        <div className="absolute inset-0 bg-ink/35" />
+        <div className="absolute inset-0 bg-ink/40" />
         <div className="relative z-10 mx-auto max-w-[1400px] h-full px-6 lg:px-10 flex flex-col items-start justify-center text-background">
           <p className="uppercase tracking-[0.3em] text-[11px] text-background/80">
             Heirloom Edit
@@ -436,8 +397,8 @@ function FullBanner() {
             Made to be<br />remembered.
           </h2>
           <p className="mt-6 max-w-md text-background/80">
-            Pieces forged in pure 925 silver, set with ethically sourced stones —
-            built for the next thirty years of wear.
+            Pieces handcrafted in 22K gold-finish, set with kundan, polki and
+            coloured stones — made for weddings, festivals and the years between.
           </p>
           <a
             href="#"
@@ -453,7 +414,7 @@ function FullBanner() {
 
 function Promise() {
   const items = [
-    { icon: ShieldCheck, label: "Pure 925 Silver", note: "Certified & hallmarked" },
+    { icon: ShieldCheck, label: "22K Gold Finish", note: "Certified & hallmarked" },
     { icon: RefreshCcw, label: "Lifetime Buyback", note: "Up to 40% returned" },
     { icon: Truck, label: "Free Shipping", note: "Across India · Insured" },
     { icon: Sparkles, label: "Crafted by hand", note: "In small batches" },
@@ -479,7 +440,7 @@ function Footer() {
   const cols = [
     {
       title: "Shop",
-      links: ["Rings", "Pendants", "Earrings", "Bracelets", "Charms", "Mangalsutra"],
+      links: ["Necklaces", "Earrings", "Chokers", "Jhumkas", "Pendant Sets", "Bridal"],
     },
     {
       title: "Help",
@@ -495,7 +456,7 @@ function Footer() {
       <div className="mx-auto max-w-[1400px] px-6 lg:px-10 py-20">
         <div className="grid lg:grid-cols-12 gap-12">
           <div className="lg:col-span-5">
-            <p className="font-serif italic text-6xl leading-none">elfy</p>
+            <p className="font-serif italic text-5xl lg:text-6xl leading-none">rajshrimahal</p>
             <p className="mt-6 max-w-sm text-primary-foreground/75">
               Join the souls list. Early access to drops, private sales and
               quiet rituals from the studio.
@@ -544,8 +505,8 @@ function Footer() {
         </div>
 
         <div className="mt-16 pt-8 border-t border-primary-foreground/15 flex flex-wrap items-center justify-between gap-4 text-xs text-primary-foreground/60">
-          <p>© {new Date().getFullYear()} elfy · Pure 925 Sterling Silver.</p>
-          <p className="font-serif italic">Silver with soul.</p>
+          <p>© {new Date().getFullYear()} rajshrimahal · Handcrafted Gold-Finish Jewellery.</p>
+          <p className="font-serif italic">Gold with soul.</p>
         </div>
       </div>
     </footer>
