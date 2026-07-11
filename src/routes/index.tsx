@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { createContext, useContext, useMemo, useState } from "react";
 import {
   Search,
   User,
@@ -14,6 +14,10 @@ import {
   ShieldCheck,
   RefreshCcw,
   Sparkles,
+  X,
+  Plus,
+  Minus,
+  Trash2,
 } from "lucide-react";
 
 import necklaceCoinSet from "@/assets/necklace/necklace-coin-set.jpg";
@@ -68,21 +72,112 @@ const earrings: Product[] = [
   { name: "Mor Temple Jhumka", price: "Rs. 3,299", img: earringPeacockJhumka, tag: "New" },
 ];
 
+/* ---------- Cart ---------- */
+
+// WhatsApp business number (India). wa.me needs the country code, no "+".
+const WHATSAPP_NUMBER = "918118898113";
+
+type CartItem = Product & { qty: number };
+
+type CartContextValue = {
+  items: CartItem[];
+  count: number;
+  subtotal: number;
+  add: (product: Product) => void;
+  setQty: (name: string, qty: number) => void;
+  remove: (name: string) => void;
+  open: () => void;
+  close: () => void;
+  isOpen: boolean;
+};
+
+const CartContext = createContext<CartContextValue | null>(null);
+
+function useCart() {
+  const ctx = useContext(CartContext);
+  if (!ctx) throw new Error("useCart must be used within CartProvider");
+  return ctx;
+}
+
+// "Rs. 14,999" -> 14999
+function priceToNumber(price: string): number {
+  const digits = price.replace(/[^\d]/g, "");
+  return digits ? parseInt(digits, 10) : 0;
+}
+
+function formatINR(amount: number): string {
+  return "Rs. " + amount.toLocaleString("en-IN");
+}
+
+function CartProvider({ children }: { children: React.ReactNode }) {
+  const [items, setItems] = useState<CartItem[]>([]);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const add = (product: Product) => {
+    setItems((prev) => {
+      const existing = prev.find((i) => i.name === product.name);
+      if (existing) {
+        return prev.map((i) => (i.name === product.name ? { ...i, qty: i.qty + 1 } : i));
+      }
+      return [...prev, { ...product, qty: 1 }];
+    });
+    setIsOpen(true);
+  };
+
+  const setQty = (name: string, qty: number) => {
+    setItems((prev) =>
+      qty <= 0
+        ? prev.filter((i) => i.name !== name)
+        : prev.map((i) => (i.name === name ? { ...i, qty } : i)),
+    );
+  };
+
+  const remove = (name: string) => setItems((prev) => prev.filter((i) => i.name !== name));
+
+  const { count, subtotal } = useMemo(() => {
+    return items.reduce(
+      (acc, i) => {
+        acc.count += i.qty;
+        acc.subtotal += priceToNumber(i.price) * i.qty;
+        return acc;
+      },
+      { count: 0, subtotal: 0 },
+    );
+  }, [items]);
+
+  const value: CartContextValue = {
+    items,
+    count,
+    subtotal,
+    add,
+    setQty,
+    remove,
+    open: () => setIsOpen(true),
+    close: () => setIsOpen(false),
+    isOpen,
+  };
+
+  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
+}
+
 function Home() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <AnnouncementBar />
-      <Header />
-      <Hero />
-      <Marquee />
-      <Categories />
-      <ShopByPrice />
-      <ProductRail title="The Necklace Edit" eyebrow="Handcrafted" items={necklaces} columns={3} />
-      <FullBanner />
-      <ProductRail title="Jhumkas & Earrings" eyebrow="Best Loved" items={earrings} columns={3} />
-      <Promise />
-      <Footer />
-    </div>
+    <CartProvider>
+      <div id="top" className="min-h-screen bg-background text-foreground">
+        <AnnouncementBar />
+        <Header />
+        <Hero />
+        <Marquee />
+        <Categories />
+        <ShopByPrice />
+        <ProductRail id="necklaces" title="The Necklace Edit" eyebrow="Handcrafted" items={necklaces} columns={3} />
+        <FullBanner />
+        <ProductRail id="earrings" title="Jhumkas & Earrings" eyebrow="Best Loved" items={earrings} columns={3} />
+        <Promise />
+        <Footer />
+        <CartDrawer />
+      </div>
+    </CartProvider>
   );
 }
 
@@ -118,14 +213,14 @@ function Header() {
         <div className="grid grid-cols-3 items-center h-20">
           {/* Left nav */}
           <nav className="hidden lg:flex items-center gap-7 text-[13px] tracking-wide">
-            <NavItem label="Necklaces" />
-            <NavItem label="Earrings" />
-            <NavItem label="Collections" />
-            <a href="#" className="hover:text-accent transition-colors">Buyback</a>
+            <NavItem label="Necklaces" href="#necklaces" />
+            <NavItem label="Earrings" href="#earrings" />
+            <NavItem label="Collections" href="#collections" />
+            <a href="#buyback" className="uppercase tracking-[0.14em] text-[11px] hover:text-accent transition-colors">Buyback</a>
           </nav>
 
           {/* Logo */}
-          <a href="#" className="justify-self-center font-serif italic text-3xl lg:text-4xl tracking-tight leading-none">
+          <a href="#top" className="justify-self-center font-serif italic text-3xl lg:text-4xl tracking-tight leading-none">
             rajshrimahal
           </a>
 
@@ -140,12 +235,7 @@ function Header() {
             <button aria-label="Wishlist" className="hover:text-accent transition-colors hidden sm:block">
               <Heart className="size-[18px]" strokeWidth={1.5} />
             </button>
-            <button aria-label="Bag" className="relative hover:text-accent transition-colors">
-              <ShoppingBag className="size-[18px]" strokeWidth={1.5} />
-              <span className="absolute -top-1.5 -right-2 text-[10px] bg-accent text-accent-foreground rounded-full size-4 grid place-items-center">
-                0
-              </span>
-            </button>
+            <CartButton />
           </div>
         </div>
       </div>
@@ -153,11 +243,23 @@ function Header() {
   );
 }
 
-function NavItem({ label }: { label: string }) {
+function CartButton() {
+  const { count, open } = useCart();
   return (
-    <button className="inline-flex items-center gap-1 hover:text-accent transition-colors uppercase tracking-[0.14em] text-[11px]">
-      {label} <ChevronDown className="size-3" strokeWidth={1.5} />
+    <button aria-label="Bag" onClick={open} className="relative hover:text-accent transition-colors">
+      <ShoppingBag className="size-[18px]" strokeWidth={1.5} />
+      <span className="absolute -top-1.5 -right-2 text-[10px] bg-accent text-accent-foreground rounded-full size-4 grid place-items-center">
+        {count}
+      </span>
     </button>
+  );
+}
+
+function NavItem({ label, href }: { label: string; href: string }) {
+  return (
+    <a href={href} className="inline-flex items-center gap-1 hover:text-accent transition-colors uppercase tracking-[0.14em] text-[11px]">
+      {label} <ChevronDown className="size-3" strokeWidth={1.5} />
+    </a>
   );
 }
 
@@ -232,7 +334,7 @@ function Marquee() {
 
 function Categories() {
   return (
-    <section className="mx-auto max-w-[1400px] px-6 lg:px-10 py-20 lg:py-28">
+    <section id="collections" className="mx-auto max-w-[1400px] px-6 lg:px-10 py-20 lg:py-28">
       <SectionHeading
         eyebrow="The Collections"
         title="Necklaces & Earrings"
@@ -303,11 +405,13 @@ function ShopByPrice() {
 }
 
 function ProductRail({
+  id,
   title,
   eyebrow,
   items,
   columns = 4,
 }: {
+  id?: string;
   title: string;
   eyebrow: string;
   items: Product[];
@@ -315,7 +419,7 @@ function ProductRail({
 }) {
   const grid = columns === 3 ? "grid-cols-2 lg:grid-cols-3" : "grid-cols-2 lg:grid-cols-4";
   return (
-    <section className="mx-auto max-w-[1400px] px-6 lg:px-10 py-20 lg:py-28">
+    <section id={id} className="mx-auto max-w-[1400px] px-6 lg:px-10 py-20 lg:py-28">
       <div className="flex items-end justify-between mb-12 flex-wrap gap-6">
         <div>
           <p className="uppercase tracking-[0.28em] text-[11px] text-accent">{eyebrow}</p>
@@ -339,6 +443,7 @@ function ProductRail({
 
 function ProductCard({ product }: { product: Product }) {
   const [liked, setLiked] = useState(false);
+  const { add } = useCart();
   return (
     <div className="group">
       <div className="relative aspect-[4/5] overflow-hidden bg-secondary hover-zoom">
@@ -358,12 +463,13 @@ function ProductCard({ product }: { product: Product }) {
             strokeWidth={1.5}
           />
         </button>
-        <a
-          href="#"
+        <button
+          type="button"
+          onClick={() => add(product)}
           className="absolute inset-x-3 bottom-3 bg-primary text-primary-foreground text-[11px] uppercase tracking-[0.22em] py-3 text-center opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all hover:bg-accent"
         >
-          Quick add
-        </a>
+          Add to cart
+        </button>
       </div>
       <div className="pt-4">
         <h3 className="font-serif text-lg leading-snug">{product.name}</h3>
@@ -420,7 +526,7 @@ function Promise() {
     { icon: Sparkles, label: "Crafted by hand", note: "In small batches" },
   ];
   return (
-    <section className="border-y border-border bg-secondary/40">
+    <section id="buyback" className="border-y border-border bg-secondary/40">
       <div className="mx-auto max-w-[1400px] px-6 lg:px-10 py-14 grid grid-cols-2 lg:grid-cols-4 gap-8">
         {items.map(({ icon: Icon, label, note }) => (
           <div key={label} className="flex items-start gap-4">
@@ -510,6 +616,179 @@ function Footer() {
         </div>
       </div>
     </footer>
+  );
+}
+
+function CartDrawer() {
+  const { items, subtotal, count, setQty, remove, isOpen, close } = useCart();
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
+  const [error, setError] = useState("");
+
+  const canOrder = items.length > 0 && name.trim() && phone.trim() && address.trim();
+
+  const placeOrder = () => {
+    if (items.length === 0) {
+      setError("Your bag is empty.");
+      return;
+    }
+    if (!name.trim() || !phone.trim() || !address.trim()) {
+      setError("Please fill in your name, phone and address.");
+      return;
+    }
+    setError("");
+
+    const lines = items
+      .map(
+        (i) =>
+          `• ${i.name}  ×${i.qty}  —  ${formatINR(priceToNumber(i.price) * i.qty)}`,
+      )
+      .join("\n");
+
+    const message =
+      `Hello rajshrimahal! I'd like to place an order.\n\n` +
+      `*Order details*\n${lines}\n\n` +
+      `*Subtotal:* ${formatINR(subtotal)}\n\n` +
+      `*Delivery details*\n` +
+      `Name: ${name.trim()}\n` +
+      `Phone: ${phone.trim()}\n` +
+      `Address: ${address.trim()}`;
+
+    const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+
+  return (
+    <>
+      {/* Backdrop */}
+      <div
+        onClick={close}
+        className={`fixed inset-0 z-50 bg-ink/50 transition-opacity duration-300 ${
+          isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
+        aria-hidden={!isOpen}
+      />
+
+      {/* Panel */}
+      <aside
+        role="dialog"
+        aria-label="Shopping bag"
+        className={`fixed right-0 top-0 z-50 h-full w-full max-w-md bg-background shadow-xl flex flex-col transition-transform duration-300 ${
+          isOpen ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
+        <div className="flex items-center justify-between px-6 py-5 border-b border-border">
+          <h2 className="font-serif italic text-2xl">
+            Your bag {count > 0 && <span className="text-accent not-italic text-base">({count})</span>}
+          </h2>
+          <button aria-label="Close" onClick={close} className="hover:text-accent transition-colors">
+            <X className="size-5" strokeWidth={1.5} />
+          </button>
+        </div>
+
+        {/* Items */}
+        <div className="flex-1 overflow-y-auto px-6 py-5">
+          {items.length === 0 ? (
+            <div className="h-full grid place-items-center text-center text-muted-foreground">
+              <div>
+                <ShoppingBag className="size-8 mx-auto mb-4 text-accent" strokeWidth={1} />
+                <p>Your bag is empty.</p>
+              </div>
+            </div>
+          ) : (
+            <ul className="space-y-5">
+              {items.map((i) => (
+                <li key={i.name} className="flex gap-4">
+                  <img src={i.img} alt={i.name} className="size-20 object-cover bg-secondary" />
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-serif text-base leading-snug">{i.name}</h3>
+                    <p className="text-sm mt-0.5">{i.price}</p>
+                    <div className="mt-2 flex items-center gap-3">
+                      <div className="inline-flex items-center border border-border">
+                        <button
+                          aria-label="Decrease quantity"
+                          onClick={() => setQty(i.name, i.qty - 1)}
+                          className="p-1.5 hover:text-accent transition-colors"
+                        >
+                          <Minus className="size-3.5" strokeWidth={1.5} />
+                        </button>
+                        <span className="w-8 text-center text-sm">{i.qty}</span>
+                        <button
+                          aria-label="Increase quantity"
+                          onClick={() => setQty(i.name, i.qty + 1)}
+                          className="p-1.5 hover:text-accent transition-colors"
+                        >
+                          <Plus className="size-3.5" strokeWidth={1.5} />
+                        </button>
+                      </div>
+                      <button
+                        aria-label="Remove"
+                        onClick={() => remove(i.name)}
+                        className="text-muted-foreground hover:text-destructive transition-colors"
+                      >
+                        <Trash2 className="size-4" strokeWidth={1.5} />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="text-sm font-medium whitespace-nowrap">
+                    {formatINR(priceToNumber(i.price) * i.qty)}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        {/* Checkout */}
+        {items.length > 0 && (
+          <div className="border-t border-border px-6 py-5 space-y-4">
+            <div className="flex items-center justify-between text-sm">
+              <span className="uppercase tracking-[0.18em] text-[11px] text-muted-foreground">Subtotal</span>
+              <span className="font-serif text-xl">{formatINR(subtotal)}</span>
+            </div>
+
+            <div className="space-y-2.5">
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Full name"
+                className="w-full border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-accent transition-colors"
+              />
+              <input
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="Phone number"
+                className="w-full border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-accent transition-colors"
+              />
+              <textarea
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder="Delivery address"
+                rows={3}
+                className="w-full border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-accent transition-colors resize-none"
+              />
+            </div>
+
+            {error && <p className="text-destructive text-xs">{error}</p>}
+
+            <button
+              type="button"
+              onClick={placeOrder}
+              disabled={!canOrder}
+              className="w-full bg-primary text-primary-foreground py-3.5 text-[12px] uppercase tracking-[0.22em] hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-50 disabled:hover:bg-primary disabled:hover:text-primary-foreground"
+            >
+              Buy now · Order on WhatsApp
+            </button>
+            <p className="text-[11px] text-muted-foreground text-center">
+              You'll be taken to WhatsApp to confirm your order.
+            </p>
+          </div>
+        )}
+      </aside>
+    </>
   );
 }
 

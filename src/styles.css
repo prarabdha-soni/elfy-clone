@@ -88,6 +88,13 @@
   * {
     border-color: var(--color-border);
   }
+  html {
+    scroll-behavior: smooth;
+  }
+  /* offset anchored sections so they clear the sticky header */
+  [id] {
+    scroll-margin-top: 6rem;
+  }
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
