@@ -30,6 +30,9 @@ import earringFloralJhumka from "@/assets/earrings/earring-floral-jhumka.jpg";
 import earringPeacockJhumka from "@/assets/earrings/earring-peacock-jhumka.jpg";
 import earringEmeraldJhumka from "@/assets/earrings/earring-emerald-jhumka.jpg";
 
+import { getProducts } from "@/lib/products";
+import { SECTIONS, type Product } from "@/lib/product-utils";
+
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
@@ -46,16 +49,9 @@ export const Route = createFileRoute("/")({
       },
     ],
   }),
+  loader: async () => ({ dbProducts: await getProducts() }),
   component: Home,
 });
-
-type Product = {
-  name: string;
-  price: string;
-  compare?: string;
-  img: string;
-  tag?: string;
-};
 
 const necklaces: Product[] = [
   { name: "Lakshmi Kasu Necklace Set", price: "Rs. 14,999", compare: "Rs. 17,999", img: necklaceCoinSet, tag: "Bestseller" },
@@ -75,7 +71,7 @@ const earrings: Product[] = [
 /* ---------- Cart ---------- */
 
 // WhatsApp business number (India). wa.me needs the country code, no "+".
-const WHATSAPP_NUMBER = "918118898113";
+const WHATSAPP_NUMBER = "919680163538";
 
 type CartItem = Product & { qty: number };
 
@@ -160,19 +156,42 @@ function CartProvider({ children }: { children: React.ReactNode }) {
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
 
+// Curated seed products slot into the new section taxonomy.
+const seedBySection: Record<string, Product[]> = {
+  haar: necklaces,
+  earrings,
+};
+
 function Home() {
+  const { dbProducts } = Route.useLoaderData();
+
+  // Group admin-uploaded products by section, then merge with the seed.
+  const dbBySection: Record<string, Product[]> = {};
+  for (const p of dbProducts) {
+    const key = p.section ?? "";
+    (dbBySection[key] ??= []).push(p);
+  }
+
+  const rails = SECTIONS.map((s) => ({
+    id: s.id,
+    label: s.label,
+    short: s.short,
+    items: [...(seedBySection[s.id] ?? []), ...(dbBySection[s.id] ?? [])],
+  })).filter((r) => r.items.length > 0);
+
   return (
     <CartProvider>
       <div id="top" className="min-h-screen bg-background text-foreground">
         <AnnouncementBar />
-        <Header />
+        <Header sections={rails.map((r) => ({ id: r.id, label: r.short }))} />
         <Hero />
         <Marquee />
         <Categories />
         <ShopByPrice />
-        <ProductRail id="necklaces" title="The Necklace Edit" eyebrow="Handcrafted" items={necklaces} columns={3} />
+        {rails.map((r) => (
+          <ProductRail key={r.id} id={r.id} title={r.label} eyebrow="The Edit" items={r.items} columns={3} />
+        ))}
         <FullBanner />
-        <ProductRail id="earrings" title="Jhumkas & Earrings" eyebrow="Best Loved" items={earrings} columns={3} />
         <Promise />
         <Footer />
         <CartDrawer />
@@ -206,16 +225,16 @@ function AnnouncementBar() {
   );
 }
 
-function Header() {
+function Header({ sections }: { sections: { id: string; label: string }[] }) {
   return (
     <header className="sticky top-0 z-40 bg-background/85 backdrop-blur border-b border-border">
       <div className="mx-auto max-w-[1400px] px-6 lg:px-10">
         <div className="grid grid-cols-3 items-center h-20">
           {/* Left nav */}
-          <nav className="hidden lg:flex items-center gap-7 text-[13px] tracking-wide">
-            <NavItem label="Necklaces" href="#necklaces" />
-            <NavItem label="Earrings" href="#earrings" />
-            <NavItem label="Collections" href="#collections" />
+          <nav className="hidden lg:flex items-center gap-6 text-[13px] tracking-wide">
+            {sections.map((s) => (
+              <NavItem key={s.id} label={s.label} href={`#${s.id}`} />
+            ))}
             <a href="#buyback" className="uppercase tracking-[0.14em] text-[11px] hover:text-accent transition-colors">Buyback</a>
           </nav>
 
@@ -288,13 +307,13 @@ function Hero() {
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <a
-              href="#"
+              href="#haar"
               className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-7 py-3.5 text-[12px] uppercase tracking-[0.2em] hover:bg-accent hover:text-accent-foreground transition-colors"
             >
               Shop necklaces <ArrowRight className="size-4" strokeWidth={1.5} />
             </a>
             <a
-              href="#"
+              href="#earrings"
               className="inline-flex items-center gap-2 border border-foreground/40 px-7 py-3.5 text-[12px] uppercase tracking-[0.2em] hover:bg-foreground hover:text-background transition-colors"
             >
               Shop earrings
@@ -341,16 +360,16 @@ function Categories() {
         sub="Two heirloom edits, one golden story."
       />
       <div className="grid md:grid-cols-2 gap-6 lg:gap-8 mt-12">
-        <FeatureTile img={necklaceChoker} title="Necklaces" subtitle="Chokers, temple sets & pendants." />
-        <FeatureTile img={earringEmeraldJhumka} title="Earrings" subtitle="Jhumkas, studs & statement drops." />
+        <FeatureTile href="#haar" img={necklaceChoker} title="Necklaces" subtitle="Chokers, temple sets & pendants." />
+        <FeatureTile href="#earrings" img={earringEmeraldJhumka} title="Earrings" subtitle="Jhumkas, studs & statement drops." />
       </div>
     </section>
   );
 }
 
-function FeatureTile({ img, title, subtitle }: { img: string; title: string; subtitle: string }) {
+function FeatureTile({ href, img, title, subtitle }: { href: string; img: string; title: string; subtitle: string }) {
   return (
-    <a href="#" className="group relative block overflow-hidden hover-zoom aspect-[4/5]">
+    <a href={href} className="group relative block overflow-hidden hover-zoom aspect-[4/5]">
       <img
         src={img}
         alt={title}
